@@ -1,0 +1,20 @@
+# CMake build output
+/build/
+/cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+
+# Visual Studio and VS Code local state
+.vs/
+.vscode/
+
+# Common compiled outputs
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.pdb
