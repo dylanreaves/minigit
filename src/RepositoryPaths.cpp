@@ -4,7 +4,11 @@
 namespace minigit {
 
 RepositoryPaths::RepositoryPaths(const std::filesystem::path& root)
-    : root_(std::filesystem::weakly_canonical(root)) {
+    : rootPath(root) {
+}
+
+const std::filesystem::path& RepositoryPaths::projectRoot() const {
+    return rootPath;
 }
 
 std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const {
@@ -17,9 +21,10 @@ std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const
     if (input.is_absolute()) {
         throw std::invalid_argument("Absolute paths are not allowed");
     }
-    auto result = (root_ / input).lexically_normal();
 
-    auto relative = result.lexically_relative(root_);
+    auto rootPath = RepositoryPaths::projectRoot();
+    auto result = (rootPath / input).lexically_normal();
+    auto relative = result.lexically_relative(rootPath);
 
     if (relative.empty() || *relative.begin() == "..") {
         throw std::invalid_argument("Path escapes project directory");
@@ -27,5 +32,5 @@ std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const
     return relative.generic_string();
 }
 
-}
+} // namespace minigit
 
