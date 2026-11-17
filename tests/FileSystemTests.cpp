@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -118,6 +119,64 @@ int main() {
         !fs::exists(missingFile) &&
         !fs::exists(missingDirectory),
         "exists does not create or modify files or directories")) return 1;
+
+    // Test 8: Read text and multiline file contents exactly.
+    if (!check(fileSystem.readBytes(tempRoot / "notes.txt") == "original",
+        "reads an existing text file")) return 1;
+
+    const fs::path multilineFile = tempRoot / "multiline.txt";
+    {
+        std::ofstream output(multilineFile, std::ios::binary);
+        output << "first\nsecond\r\nthird\n";
+    }
+    if (!check(fileSystem.readBytes(multilineFile) == "first\nsecond\r\nthird\n",
+        "preserves newline characters in multiline files")) return 1;
+
+    // Test 9: Preserve binary bytes and read empty files.
+    const fs::path binaryFile = tempRoot / "binary.dat";
+    const std::string binaryContents = {'A', '\0', 'B', '\0', '\x7f'};
+    {
+        std::ofstream output(binaryFile, std::ios::binary);
+        output.write(binaryContents.data(), static_cast<std::streamsize>(binaryContents.size()));
+    }
+    if (!check(fileSystem.readBytes(binaryFile) == binaryContents,
+        "preserves binary bytes including null bytes")) return 1;
+
+    const fs::path emptyFile = tempRoot / "empty.txt";
+    {
+        std::ofstream output(emptyFile, std::ios::binary);
+    }
+    if (!check(fileSystem.readBytes(emptyFile).empty(),
+        "returns an empty string for an empty file")) return 1;
+
+    // Test 10: Missing files report an error.
+    bool missingFileReported = false;
+    try {
+        (void)fileSystem.readBytes(missingFile);
+    } catch (const std::exception&) {
+        missingFileReported = true;
+    }
+    if (!check(missingFileReported,
+        "reports an error for a nonexistent file")) return 1;
+
+    // Test 11: Reading does not modify the original file.
+    std::string fileBefore;
+    {
+        std::ifstream input(binaryFile, std::ios::binary);
+        fileBefore.assign(
+            std::istreambuf_iterator<char>(input),
+            std::istreambuf_iterator<char>());
+    }
+    (void)fileSystem.readBytes(binaryFile);
+    std::string fileAfter;
+    {
+        std::ifstream input(binaryFile, std::ios::binary);
+        fileAfter.assign(
+            std::istreambuf_iterator<char>(input),
+            std::istreambuf_iterator<char>());
+    }
+    if (!check(fileBefore == fileAfter,
+        "reading does not modify the original file")) return 1;
 
     return 0;
 }
