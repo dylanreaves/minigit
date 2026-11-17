@@ -1,5 +1,7 @@
 #include "FileSystem.hpp"
 #include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <stdexcept>
 
 namespace minigit {
@@ -37,6 +39,23 @@ std::vector<std::string> FileSystem::listWorkingFiles(const std::filesystem::pat
 
 bool FileSystem::exists(const std::filesystem::path& path) const {
     return std::filesystem::exists(path);
+}
+
+std::string FileSystem::readBytes(const std::filesystem::path& path) const {
+    std::ifstream input(path, std::ios::binary);
+    if (!input.is_open()) {
+        throw std::runtime_error("Cannot read file: " + path.string());
+    }
+
+    std::istreambuf_iterator<char> begin(input);
+    std::istreambuf_iterator<char> end;
+    std::string contents(begin, end);
+
+    if (input.bad()) {
+        throw std::runtime_error("Cannot read file: " + path.string());
+    }
+
+    return contents;
 }
 
 } // namespace minigit
