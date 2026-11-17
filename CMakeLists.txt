@@ -8,9 +8,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(minigit_paths 
     src/PathLab.cpp
     src/RepositoryPaths.cpp
-)
-add_library(minigit_paths src/PathLab.cpp
-    src/PathLab.cpp
     src/FileSystem.cpp
 )
 
