@@ -35,4 +35,8 @@ std::vector<std::string> FileSystem::listWorkingFiles(const std::filesystem::pat
     return files;
 }
 
+bool FileSystem::exists(const std::filesystem::path& path) const {
+    return std::filesystem::exists(path);
+}
+
 } // namespace minigit
