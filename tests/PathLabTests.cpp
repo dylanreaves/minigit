@@ -49,31 +49,25 @@ int main() {
     if (!check(!minigit::readTextFile(tempDir / "missing.txt", actual), "missing file returns false")) return 1;
     if (!check(actual == "unchanged", "failed read leaves output unchanged")) return 1;
 
-    std::cout << "All PathLab tests passed\n";
-
+    // Issue 3 test:
     {
-        // Issue 3 test:
-        const std::filesystem::path testFile =
-        "build/issue3-test/nested/output.txt";
-
-        if (!check(minigit::writeTextFile(testFile, "Hello MiniGit"),
-           "writeTextFile should create parent directories and write text")) {
+        const fs::path outputFile = "build/issue3-test/nested/output.txt";
+        if (!check(minigit::writeTextFile(outputFile, "Hello MiniGit"),
+                   "writeTextFile should create parent directories and write text")) {
             return 1;
         }
 
-            std::ifstream input(testFile);
-            std::string contents;
-            std::getline(input, contents);
-
+        std::ifstream input(outputFile);
+        std::string contents;
+        std::getline(input, contents);
         if (!check(contents == "Hello MiniGit",
-           "writeTextFile should save the exact text")) {
+                   "writeTextFile should save the exact text")) {
             return 1;
+        }
     }
-    input.close();
-    std::filesystem::remove_all("build/issue3-test");
-
+    fs::remove_all("build/issue3-test");
 
     std::cout << "PathLab smoke check passed\n";
-    }
+    std::cout << "All PathLab tests passed\n";
     return 0;
 }
