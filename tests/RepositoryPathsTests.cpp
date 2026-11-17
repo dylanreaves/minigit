@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -41,6 +42,18 @@ int main() {
     // Test 4: Getter leaves stored root unchanged
     const fs::path original = paths.projectRoot();
     if (!check(paths.projectRoot() == original, "stored root remains unchanged")) return 1;
+
+    // Test 5: Check that valid relative paths are accepted
+    if (!check(paths.safeRelativeFile("docs/readme.txt") == "docs/readme.txt", "valid relative path")) return 1;
+
+    // Test 6: Check that paths cannot escape the project root.
+    bool rejected = false;
+    try {
+        paths.safeRelativeFile("../outside.txt");
+    } catch(const std::invalid_argument) {
+        rejected = true;
+    }
+    if (!check(rejected, "reject path outside of repository")) return 1;
 
     return 0;
 }
