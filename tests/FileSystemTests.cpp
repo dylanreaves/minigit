@@ -82,5 +82,42 @@ int main() {
         fs::exists(tempRoot / "docs" / "guide.txt"),
         "listing does not modify working files")) return 1;
 
+    // Test 5: Existing file and directory paths.
+    if (!check(fileSystem.exists(tempRoot / "notes.txt"),
+        "returns true for an existing file")) return 1;
+    if (!check(fileSystem.exists(tempRoot / "docs"),
+        "returns true for an existing directory")) return 1;
+
+    // Test 6: Nonexistent file and directory paths.
+    const fs::path missingFile = tempRoot / "missing.txt";
+    const fs::path missingDirectory = tempRoot / "missing-directory";
+    if (!check(!fileSystem.exists(missingFile),
+        "returns false for a nonexistent file")) return 1;
+    if (!check(!fileSystem.exists(missingDirectory),
+        "returns false for a nonexistent directory")) return 1;
+
+    // Test 7: Calling exists does not create or modify paths.
+    const fs::path unchangedFile = tempRoot / "notes.txt";
+    std::string before;
+    {
+        std::ifstream input(unchangedFile);
+        std::getline(input, before);
+    }
+
+    (void)fileSystem.exists(unchangedFile);
+    (void)fileSystem.exists(missingFile);
+    (void)fileSystem.exists(missingDirectory);
+
+    std::string after;
+    {
+        std::ifstream input(unchangedFile);
+        std::getline(input, after);
+    }
+
+    if (!check(after == before &&
+        !fs::exists(missingFile) &&
+        !fs::exists(missingDirectory),
+        "exists does not create or modify files or directories")) return 1;
+
     return 0;
 }

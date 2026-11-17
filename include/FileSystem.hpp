@@ -8,6 +8,7 @@ namespace minigit {
 class FileSystem {
     public:
         std::vector<std::string> listWorkingFiles(const std::filesystem::path& projectRoot) const;
+        bool exists(const std::filesystem::path& path) const;
 };
 
 } // namespace minigit
