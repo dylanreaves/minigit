@@ -234,5 +234,68 @@ int main() {
         "does not recursively delete a nonempty directory")) return 1;
 
 
+    // Copy test 1: Copy an ordinary text file.
+    const fs::path copyRoot = tempRoot / "copy-tests";
+    fs::create_directories(copyRoot);
+    const fs::path textCopy = copyRoot / "notes-copy.txt";
+    fileSystem.copy(tempRoot / "notes.txt", textCopy);
+    if (!check(fileSystem.readBytes(textCopy) == "original", "copies an ordinary text file")) return 1;
+
+    // Copy test 2: Preserve multiline file contents.
+    const fs::path multilineCopy = copyRoot / "multiline-copy.txt";
+    fileSystem.copy(multilineFile, multilineCopy);
+
+    if (!check(fileSystem.readBytes(multilineCopy) == "first\nsecond\r\nthird\n",
+        "preserves exact multiline contents")) return 1;
+
+    // Copy test 3: Preserve binary bytes.
+    const fs::path binaryCopy = copyRoot / "binary-copy.dat";
+    fileSystem.copy(binaryFile, binaryCopy);
+    if (!check(fileSystem.readBytes(binaryCopy) == binaryContents, "preserves binary bytes")) return 1;
+
+    // Copy test 4: Missing source reports an error.
+    bool missingCopyReported = false;
+    try {
+        fileSystem.copy(copyRoot / "missing.txt", copyRoot / "output.txt");
+    } catch (const std::exception&) {
+        missingCopyReported = true;
+    }
+    if (!check(missingCopyReported, "reports error for missing copy source")) return 1;
+
+    // Copy test 5: Invalid destination reports an error.
+    bool invalidTargetReported = false;
+    try {
+        fileSystem.copy(tempRoot / "notes.txt", copyRoot / "missing-folder" / "output.txt");
+    } catch (const std::exception&) {
+        invalidTargetReported = true;
+    }
+    if (!check(invalidTargetReported, "reports error for invalid copy destination")) return 1;
+
+    // Copy test 6: Source and unrelated files remain unchanged.
+    if (!check(
+        fileSystem.readBytes(tempRoot / "notes.txt") == "original" &&
+        fileSystem.readBytes(binaryFile) == binaryContents &&
+        fileSystem.readBytes(tempRoot / "docs" / "guide.txt") == "nested",
+        "copy preserves source and unrelated files")) return 1;
+
+    // Copy test 7: Existing destination must not be overwritten.
+    const fs::path existingTarget = copyRoot / "existing.txt";
+    { std::ofstream(existingTarget) << "keep this"; }
+
+    bool existingTargetReported = false;
+    try {
+        fileSystem.copy(tempRoot / "notes.txt", existingTarget);
+    } catch (const std::exception&) {
+        existingTargetReported = true;
+    }
+    if (!check(existingTargetReported && fileSystem.readBytes(existingTarget) == "keep this",
+        "rejects existing destination without overwriting it")) return 1;
+
+    // Copy test 8: Copy an empty file.
+    const fs::path emptyCopy = copyRoot / "empty-copy.txt";
+    fileSystem.copy(emptyFile, emptyCopy);
+    if (!check(fs::exists(emptyCopy) && fileSystem.readBytes(emptyCopy).empty(),
+        "copies an empty file successfully")) return 1;
+
     return 0;
 }
