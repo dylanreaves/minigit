@@ -58,4 +58,26 @@ std::string FileSystem::readBytes(const std::filesystem::path& path) const {
     return contents;
 }
 
+void FileSystem::remove(const std::filesystem::path& path) const {
+    namespace fs = std::filesystem;
+    std::error_code ec;
+
+    // symlink_status: don't follow links, so a link is removed, never its target.
+    const fs::file_status status = fs::symlink_status(path, ec);
+
+    if (ec || !fs::exists(status)) {
+        throw std::runtime_error("Cannot remove '" + path.string() + "': file does not exist");
+    }
+
+    if (fs::is_directory(status)) {
+        throw std::runtime_error("Cannot remove '" + path.string() + "': path is a directory");
+    }
+
+    // Non-recursive; never remove_all.
+    if (!fs::remove(path, ec)) {
+        throw std::runtime_error("Cannot remove '" + path.string() + "': " +
+                                 (ec ? ec.message() : "file was not removed"));
+    }
+}
+
 } // namespace minigit

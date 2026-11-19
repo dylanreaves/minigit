@@ -178,5 +178,61 @@ int main() {
     if (!check(fileBefore == fileAfter,
         "reading does not modify the original file")) return 1;
 
+
+
+            // ---- remove() tests ----
+    const fs::path removeRoot = tempRoot / "remove-tests";
+    fs::create_directories(removeRoot / "folder");
+
+    const fs::path target = removeRoot / "target.txt";
+    const fs::path neighborA = removeRoot / "neighborA.txt";
+    const fs::path neighborB = removeRoot / "neighborB.txt";
+    const fs::path folderChild = removeRoot / "folder" / "child.txt";
+    {
+        std::ofstream(target) << "delete me";
+        std::ofstream(neighborA) << "keep A";
+        std::ofstream(neighborB) << "keep B";
+        std::ofstream(folderChild) << "keep child";
+    }
+
+    auto readAll = [](const fs::path& p) {
+        std::ifstream input(p, std::ios::binary);
+        return std::string(std::istreambuf_iterator<char>(input),
+                           std::istreambuf_iterator<char>());
+    };
+
+    // Remove test 1: Removes an existing file.
+    fileSystem.remove(target);
+    if (!check(!fs::exists(target),
+        "removes an existing file")) return 1;
+
+    // Remove test 2: Neighboring files are unchanged.
+    if (!check(fs::exists(neighborA) && readAll(neighborA) == "keep A" &&
+               fs::exists(neighborB) && readAll(neighborB) == "keep B",
+        "neighboring files remain unchanged")) return 1;
+
+    // Remove test 3: Nonexistent file reports an error.
+    bool missingRemoveReported = false;
+    try {
+        fileSystem.remove(removeRoot / "does-not-exist.txt");
+    } catch (const std::exception&) {
+        missingRemoveReported = true;
+    }
+    if (!check(missingRemoveReported,
+        "reports an error when removing a nonexistent file")) return 1;
+
+    // Remove test 4: Nonempty directory is not recursively deleted.
+    bool directoryRemoveReported = false;
+    try {
+        fileSystem.remove(removeRoot / "folder");
+    } catch (const std::exception&) {
+        directoryRemoveReported = true;
+    }
+    if (!check(directoryRemoveReported &&
+               fs::is_directory(removeRoot / "folder") &&
+               readAll(folderChild) == "keep child",
+        "does not recursively delete a nonempty directory")) return 1;
+
+
     return 0;
 }
