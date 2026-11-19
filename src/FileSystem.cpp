@@ -80,4 +80,16 @@ void FileSystem::remove(const std::filesystem::path& path) const {
     }
 }
 
+void FileSystem::copy(const std::filesystem::path& source, const std::filesystem::path& target) const {
+    namespace fs = std::filesystem;
+    std::error_code ec;
+
+    if (!fs::copy_file(source, target, fs::copy_options::none, ec)) {
+        throw (std::runtime_error(
+            "Cannot copy '" + source.string() + "' to '" + target.string() + "': " +
+            (ec ? ec.message() : "copy was not completed")
+        ));
+    }
+}
+
 } // namespace minigit
