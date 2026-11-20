@@ -5,6 +5,7 @@
 namespace minigit {
 
 class RepositoryPaths {
+<<<<<<< HEAD
 public:
     explicit RepositoryPaths(const std::filesystem::path& root);
 
@@ -17,3 +18,14 @@ private:
 };
 
 }
+=======
+    public:
+        explicit RepositoryPaths(const std::filesystem::path& root);
+        const std::filesystem::path& projectRoot() const;
+        std::string safeRelativeFile(const std::string& argument) const;
+    private:
+        std::filesystem::path rootPath;
+};
+
+} // namespace minigit
+>>>>>>> origin/main
