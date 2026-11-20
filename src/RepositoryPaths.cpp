@@ -11,7 +11,9 @@ RepositoryPaths::RepositoryPaths(const std::filesystem::path& root)
 const std::filesystem::path& RepositoryPaths::projectRoot() const {
     return rootPath;
 }
-
+std::filesystem::path RepositoryPaths::commitsDirectory() const {
+    return rootPath / ".minigit" / "commits";
+}
 std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const {
     if (argument.empty()) {
         throw std::invalid_argument("File path cannot be empty");
