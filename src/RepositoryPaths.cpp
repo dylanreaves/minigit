@@ -32,6 +32,9 @@ std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const
     }
     return relative.generic_string();
 }
+std::filesystem::path RepositoryPaths::headFile() const {
+    return rootPath / ".minigit" / "HEAD";
+}
 
 } // namespace minigit
 
