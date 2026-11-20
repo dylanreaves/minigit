@@ -1,4 +1,5 @@
 #include "RepositoryPaths.hpp"
+#include <filesystem>
 #include <stdexcept>
 
 namespace minigit {
