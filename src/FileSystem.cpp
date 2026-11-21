@@ -92,4 +92,36 @@ void FileSystem::copy(const std::filesystem::path& source, const std::filesystem
     }
 }
 
+void FileSystem::createDirectories(const std::filesystem::path& directory) const {
+    std::error_code ec;
+
+    // Creates the directory and any missing parent directories.
+    std::filesystem::create_directories(directory, ec);
+
+    // Existing directories are valid, but files and failed creations are not.
+    if (ec || !std::filesystem::is_directory(directory)) {
+        throw std::runtime_error("Cannot create directory '" + directory.string() + "': " +
+            (ec ? ec.message() : "path is not a directory")
+        );
+    }
+}
+
+void FileSystem::writeText(const std::filesystem::path& path, const std::string& text) const {
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    if (!output.is_open()) {
+        throw std::runtime_error("Cannot write file: " + path.string());
+    }
+
+    // Write the supplied contents exactly, including empty strings.
+    output.write(text.data(), static_cast<std::streamsize>(text.size()));
+    if (!output) {
+        throw std::runtime_error("Cannot write file: " + path.string());
+    }
+    output.close();
+
+    if (!output) {
+        throw std::runtime_error("Cannot finish writing file: " + path.string());
+    }
+}
+
 } // namespace minigit
