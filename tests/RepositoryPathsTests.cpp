@@ -19,6 +19,11 @@ bool check(bool condition, const char* message) {
     return true;
 }
 
+bool headExists(const std::string& root = ".minigit"){
+        fs::path headPath = fs::path(root) / "HEAD";
+        return fs::exists(headPath) && is_regular_file(headPath);
+}
+
 int main() {
     // Test 1: Ordinary repository root
     const fs::path root = "course/repo";
@@ -54,6 +59,16 @@ int main() {
         rejected = true;
     }
     if (!check(rejected, "reject path outside of repository")) return 1;
+
+    // Test 7: Verify that headFile() returns the correct path for an ordinary root.
+    if (!check(paths.headFile() == root/".minigit"/"HEAD", "ordinary_root.minigit/HEAD"));
+    
+    // Test 8: Verify that headFile() works with a nested root.
+    if (!check(paths.headFile() == nestedRoot/".minigit"/"HEAD", "nest_ordinary_root.minigit/HEAD"));
+
+    // Test 9: Test when the HEAD file does not exist and confirm the function only returns its path without creating it.
+    //check the head not exist, and head file return still HEAD which not exist
+    if (!check((headExists() == false && paths.headFile() == root/".minigit"/"HEAD"), "ordinary_root.minigit path, head not exist"));
 
     return 0;
 }
