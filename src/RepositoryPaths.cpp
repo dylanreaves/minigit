@@ -23,6 +23,14 @@ std::filesystem::path RepositoryPaths::indexFile() const {
 std::filesystem::path RepositoryPaths::commitsDirectory() const {
     return rootPath / ".minigit" / "commits";
 }
+
+std::filesystem::path RepositoryPaths::minigitDirectory() const{
+    return projectRoot() / ".minigit";
+}
+
+std::filesystem::path RepositoryPaths::stageDirectory() const{
+    return minigitDirectory() / "Stage";
+}
   
 std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const {
     if (argument.empty()) {
