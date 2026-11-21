@@ -9,7 +9,10 @@ class RepositoryPaths {
         explicit RepositoryPaths(const std::filesystem::path& root);
         const std::filesystem::path& projectRoot() const;
         const std::filesystem::path headFile() const;
+        std::filesystem::path indexFile() const;
+        std::filesystem::path commitsDirectory() const;
         std::string safeRelativeFile(const std::string& argument) const;
+        
     private:
         std::filesystem::path rootPath;
 };

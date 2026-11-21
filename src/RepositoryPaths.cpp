@@ -1,4 +1,5 @@
 #include "RepositoryPaths.hpp"
+#include <filesystem>
 #include <stdexcept>
 
 namespace minigit {
@@ -11,10 +12,18 @@ const std::filesystem::path& RepositoryPaths::projectRoot() const {
     return rootPath;
 }
 
- const std::filesystem::path RepositoryPaths::headFile() const {
-    return rootPath /".minigit" / "HEAD";
- }
-
+const std::filesystem::path RepositoryPaths::headFile() const {
+   return rootPath /".minigit" / "HEAD";
+}
+  
+std::filesystem::path RepositoryPaths::indexFile() const {
+    return rootPath / ".minigit" / "index";
+}
+  
+std::filesystem::path RepositoryPaths::commitsDirectory() const {
+    return rootPath / ".minigit" / "commits";
+}
+  
 std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const {
     if (argument.empty()) {
         throw std::invalid_argument("File path cannot be empty");
@@ -22,7 +31,7 @@ std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const
 
     std::filesystem::path input(argument);
 
-    if (input.is_absolute()) {
+    if (input.is_absolute() || input.has_root_path()) {
         throw std::invalid_argument("Absolute paths are not allowed");
     }
 
