@@ -21,7 +21,7 @@ std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const
 
     std::filesystem::path input(argument);
 
-    if (input.is_absolute()) {
+    if (input.is_absolute() || input.has_root_path()) {
         throw std::invalid_argument("Absolute paths are not allowed");
     }
 
