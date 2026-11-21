@@ -55,5 +55,23 @@ int main() {
     }
     if (!check(rejected, "reject path outside of repository")) return 1;
 
+        // Test 7: Reject empty relative path
+    rejected = false;
+    try {
+        paths.safeRelativeFile("");
+    } catch (const std::invalid_argument&) {
+        rejected = true;
+    }
+    if (!check(rejected, "reject empty relative path")) return 1;
+
+    // Test 8: Reject absolute path
+    rejected = false;
+    try {
+        paths.safeRelativeFile("/outside.txt");
+    } catch (const std::invalid_argument&) {
+        rejected = true;
+    }
+    if (!check(rejected, "reject absolute path")) return 1;
+
     return 0;
 }
