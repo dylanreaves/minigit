@@ -110,8 +110,8 @@ int main() {
     if (!check(paths.stageDirectory() == root / ".minigit", "ordinary repository root/.minigit path"));
 
     // Nested project root produces both correct paths.
-    if (!check(paths.minigitDirectory() == nestedRoot / ".minigit", "ordinary repository root/.minigit path"));
-    if (!check(paths.stageDirectory() == nestedRoot / "Stage", "ordinary repository root/ Stage path"));
+    if (!check(paths.minigitDirectory() == nestedRoot / ".minigit", "nest_ordinary_root/.minigit path"));
+    if (!check(paths.stageDirectory() == nestedRoot / "Stage", "nest_ordinary_root/ Stage path"));
 
     // Calling either function does not create any directories.
     if (!check(!fs::exists(paths.minigitDirectory()),

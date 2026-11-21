@@ -12,20 +12,20 @@ const std::filesystem::path& RepositoryPaths::projectRoot() const {
     return rootPath;
 }
 
+std::filesystem::path RepositoryPaths::minigitDirectory() const{
+    return projectRoot() / ".minigit";
+}
+
 const std::filesystem::path RepositoryPaths::headFile() const {
-   return rootPath /".minigit" / "HEAD";
+   return minigitDirectory() / "HEAD";
 }
   
 std::filesystem::path RepositoryPaths::indexFile() const {
-    return rootPath / ".minigit" / "index";
+    return minigitDirectory() / "index";
 }
   
 std::filesystem::path RepositoryPaths::commitsDirectory() const {
-    return rootPath / ".minigit" / "commits";
-}
-
-std::filesystem::path RepositoryPaths::minigitDirectory() const{
-    return projectRoot() / ".minigit";
+    return minigitDirectory() / "commits";
 }
 
 std::filesystem::path RepositoryPaths::stageDirectory() const{
