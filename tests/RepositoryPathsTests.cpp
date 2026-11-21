@@ -25,6 +25,8 @@ bool headExists(const std::string& root = ".minigit"){
 }
 
 int main() {
+    /**************** MILESTONE 1***************************/
+
     // Test 1: Ordinary repository root
     const fs::path root = "course/repo";
     const minigit::RepositoryPaths paths(root);
@@ -96,8 +98,26 @@ int main() {
     if (!check(paths.headFile() == nestedRoot/".minigit"/"HEAD", "nest_ordinary_root.minigit/HEAD"));
 
     // Test 9: Test when the HEAD file does not exist and confirm the function only returns its path without creating it.
-    //check the head not exist, and head file return still HEAD which not exist
     if (!check((headExists() == false && paths.headFile() == root/".minigit"/"HEAD"), "ordinary_root.minigit path, head not exist"));
+
+    /**************** MILESTONE 2***************************/
+
+    /*********Test Initialization Directory Path**************/
+    //Normal project root produces the correct .minigit path.
+    if (!check(paths.minigitDirectory() == root / ".minigit", "ordinary repository root/.minigit path"));
+
+    // Normal project root produces the correct Stage path.
+    if (!check(paths.stageDirectory() == root / ".minigit", "ordinary repository root/.minigit path"));
+
+    // Nested project root produces both correct paths.
+    if (!check(paths.minigitDirectory() == nestedRoot / ".minigit", "nest_ordinary_root/.minigit path"));
+    if (!check(paths.stageDirectory() == nestedRoot / "Stage", "nest_ordinary_root/ Stage path"));
+
+    // Calling either function does not create any directories.
+    if (!check(!fs::exists(paths.minigitDirectory()),
+           "minigitDirectory does not create any directories")) return 1;
+    if (!check(!fs::exists(paths.stageDirectory()),
+           "stageDirectory does not create any directories")) return 1;
 
     return 0;
 }
