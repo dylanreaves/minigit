@@ -297,5 +297,77 @@ int main() {
     if (!check(fs::exists(emptyCopy) && fileSystem.readBytes(emptyCopy).empty(),
         "copies an empty file successfully")) return 1;
 
+
+    // ---- INIT-2: createDirectories() and writeText() tests ----
+    const fs::path initRoot = tempRoot / "init-2-tests";
+
+    // Test 1: Create a new directory.
+    fileSystem.createDirectories(initRoot);
+    if (!check(fs::is_directory(initRoot), "creates a new directory")) return 1;
+
+    // Test 2: Create nested directories.
+    const fs::path nestedDir = initRoot / "nested" / "subfolder";
+    fileSystem.createDirectories(nestedDir);
+
+    if (!check(fs::is_directory(nestedDir), "creates nested directories")) return 1;
+
+    // Test 3: Existing directory must preserve its contents.
+    const fs::path existingFile = initRoot / "existing.txt";
+    { std::ofstream(existingFile) << "keep this"; }
+    fileSystem.createDirectories(initRoot);
+    if (!check(fileSystem.readBytes(existingFile) == "keep this", "preserves contents of an existing directory")) return 1;
+
+    // Test 4: Existing regular file cannot be used as a directory.
+    bool fileAsDirectoryRejected = false;
+    try {
+        fileSystem.createDirectories(existingFile);
+    } catch (const std::exception&) {
+        fileAsDirectoryRejected = true;
+    }
+    if (!check(fileAsDirectoryRejected, "rejects regular file as directory")) return 1;
+
+    // Test 5: Write exact text contents.
+    const fs::path textFile = initRoot / "text.txt";
+    const std::string exactText = "First line\nSecond line\r\n";
+    fileSystem.writeText(textFile, exactText);
+    if (!check(fileSystem.readBytes(textFile) == exactText, "writes exact text contents")) return 1;
+
+    // Test 6: Create an empty file.
+    const fs::path emptyTextFile = initRoot / "empty.txt";
+    fileSystem.writeText(emptyTextFile, "");
+
+    if (!check(fs::exists(emptyTextFile) && fileSystem.readBytes(emptyTextFile).empty(), "creates an empty file")) return 1;
+
+    // Test 7: Overwrite an existing file.
+    fileSystem.writeText(textFile, "updated");
+    if (!check(fileSystem.readBytes(textFile) == "updated", "overwrites existing file contents")) return 1;
+
+    // Test 8: Missing parent directory must cause an error.
+    bool missingParentRejected = false;
+    const fs::path invalidFile = initRoot / "missing-parent" / "file.txt";
+    try {
+        fileSystem.writeText(invalidFile, "test");
+    } catch (const std::exception&) {
+        missingParentRejected = true;
+    }
+
+    if (!check(missingParentRejected && !fs::exists(invalidFile) && !fs::exists(invalidFile.parent_path()),
+        "rejects writes when parent directory does not exist")) return 1;
+
+    // Test 9: A directory cannot be used as a text file.
+    bool directoryTargetRejected = false;
+    try {
+        fileSystem.writeText(initRoot, "test");
+    } catch (const std::exception&) {
+        directoryTargetRejected = true;
+    }
+
+    if (!check(directoryTargetRejected, "rejects directory as file destination")) return 1;
+
+    // Test 10: Unrelated files remain unchanged.
+    if (!check(fileSystem.readBytes(existingFile) == "keep this" &&
+            fileSystem.readBytes(tempRoot / "notes.txt") == "original",
+        "leaves unrelated files unchanged")) return 1;
+
     return 0;
 }

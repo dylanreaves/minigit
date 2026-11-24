@@ -12,6 +12,9 @@ class FileSystem {
         std::string readBytes(const std::filesystem::path& path) const;
         void remove(const std::filesystem::path& path) const;
         void copy(const std::filesystem::path& source, const std::filesystem::path& target) const;
+        void createDirectories(const std::filesystem::path& directory) const;
+        void writeText(const std::filesystem::path& path, const std::string& text) const;
+        
 };
 
 } // namespace minigit
