@@ -100,6 +100,39 @@ int main() {
     // Test 9: Test when the HEAD file does not exist and confirm the function only returns its path without creating it.
     if (!check((headExists() == false && paths.headFile() == root/".minigit"/"HEAD"), "ordinary_root.minigit path, head not exist"));
 
+    // ---- RP-6: stageFile() tests ----
+
+    // Test 1: Ordinary file path.
+    if (!check(paths.stageFile("notes.txt") == root / ".minigit" / "Stage" / "notes.txt",
+        "stageFile returns correct path for ordinary file"
+    )) return 1;
+
+    // Test 2: Nested file path.
+    if (!check(paths.stageFile("docs/guide.txt") == root / ".minigit" / "Stage" / "docs" / "guide.txt",
+        "stageFile preserves nested file paths"
+    )) return 1;
+
+    // Test 3: Nested project root.
+    if (!check(nested.stageFile("notes.txt") == nestedRoot / ".minigit" / "Stage" / "notes.txt",
+        "stageFile works with nested project root"
+    )) return 1;
+
+    // Test 4: Reject paths escaping the project.
+    bool invalidStagePathRejected = false;
+    try {
+        paths.stageFile("../outside.txt");
+    } catch (const std::invalid_argument&) {
+        invalidStagePathRejected = true;
+    }
+    if (!check(invalidStagePathRejected, "stageFile rejects paths outside project")) return 1;
+
+    // Test 5: Calling stageFile does not create files.
+    const fs::path expectedStageFile = missingRoot / ".minigit" / "Stage" / "notes.txt";
+
+    if (!check(missing.stageFile("notes.txt") == expectedStageFile && !fs::exists(missingRoot),
+        "stageFile returns path without creating directories or files"
+    )) return 1;
+
     /**************** MILESTONE 2***************************/
 
     /*********Test Initialization Directory Path**************/

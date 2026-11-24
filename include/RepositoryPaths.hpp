@@ -13,6 +13,7 @@ class RepositoryPaths {
         std::filesystem::path commitsDirectory() const;
         std::filesystem::path minigitDirectory() const;
         std::filesystem::path stageDirectory() const; 
+        std::filesystem::path stageFile(const std::string& path) const;
         std::string safeRelativeFile(const std::string& argument) const;
         
     private:

@@ -31,6 +31,10 @@ std::filesystem::path RepositoryPaths::commitsDirectory() const {
 std::filesystem::path RepositoryPaths::stageDirectory() const{
     return minigitDirectory() / "Stage";
 }
+
+std::filesystem::path RepositoryPaths::stageFile(const std::string& path) const {
+    return stageDirectory() / safeRelativeFile(path);
+}
   
 std::string RepositoryPaths::safeRelativeFile(const std::string& argument) const {
     if (argument.empty()) {
